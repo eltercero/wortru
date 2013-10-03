@@ -1,6 +1,3 @@
-require 'roxml'
-require 'pry'
-
 class Wortru
   
   class Category
