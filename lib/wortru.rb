@@ -1,5 +1,19 @@
 class Wortru
   
+  class Author
+    include ROXML
+    xml_reader :author_login, from: 'wp:author_login'
+    xml_reader :author_email, from: 'wp:author_email'
+    xml_reader :author_display_name, from: 'wp:author_display_name', cdata: true
+    xml_reader :author_first_name, from: 'wp:author_first_name', cdata: true
+    xml_reader :author_last_name, from: 'wp:author_last_name', cdata: true
+    
+    def name
+      author_display_name.presence || author_login.presence
+    end
+    
+  end
+
   class Category
     include ROXML
     xml_reader :domain, from: :attr
@@ -25,6 +39,7 @@ class Wortru
     include ROXML
 
     xml_reader :title, from: 'title'
+    xml_reader :creator, from: 'dc:creator'
     xml_reader :nicetitle, from: 'wp:post_name'
     xml_reader :pub_date, from: 'pubDate'
     xml_reader :status, from: 'wp:status'
@@ -51,11 +66,15 @@ class Wortru
       categories.select(&:tag?)
     end    
 
-    %w(post_shop_reference post_shop_type post_image).each do |name|
+    %w(post_shop_reference post_shop_type post_image post_desc).each do |name|
       send :define_method, "meta_#{name}" do
         post_meta = post_metas.find{|pm| pm.meta_key == name}
         post_meta.meta_value if post_meta      
       end
+    end
+
+    def summary
+      meta_post_desc.presence || excerpt.presence
     end
 
   end
@@ -72,6 +91,9 @@ class Wortru
       if @reader.node_type == 1 && @reader.name == 'item'
         str = @reader.outer_xml
         yield Item.from_xml(str)
+      elsif @reader.node_type == 1 && @reader.name == 'wp:author'
+        str = @reader.outer_xml
+        yield Author.from_xml(str)
       end
     end
   end
