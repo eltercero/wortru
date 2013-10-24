@@ -44,7 +44,6 @@ class Wortru
     xml_reader :pub_date, from: 'pubDate'
     xml_reader :status, from: 'wp:status'
     xml_reader :content, from: 'content:encoded', cdata: true
-    xml_reader :content2, from: 'content2:encoded', cdata: true
     xml_reader :excerpt, from: 'excerpt:encoded', cdata: true
     xml_reader :post_type, from: 'wp:post_type'
     xml_reader :post_date, from: 'wp:post_date'
